@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using WordCountProcessor.Interfaces;
+using System.Diagnostics;
 
 namespace WordCountProcessor
 {
@@ -19,6 +20,7 @@ namespace WordCountProcessor
                 count++;
                 wordCountDictionary[word] = count;
             }
+            Debug.WriteLine(wordCountDictionary.GetWordCountAsNVP());
         }
     }
 }
