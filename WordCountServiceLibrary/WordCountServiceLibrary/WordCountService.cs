@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Runtime.Remoting.Messaging;
 using Autofac;
+using WordCountProcessor.Interfaces;
 
 namespace WordCountServiceLibrary
 {
@@ -25,28 +26,24 @@ namespace WordCountServiceLibrary
 
     public class WordCountService : IWordCount
     {
-        //IWordCountProcessor processor = new WordCountProcessor();
-        private readonly WordCountProcessor.IWordCountProcessor processor = new WordCountProcessor.WordCountProcessor();
-        //private readonly IContainer container;
+        private readonly IWordCountProcessor processor;
+        private readonly IContainer container;
 
         public WordCountService()
         {
-            /*var builder = new ContainerBuilder();
+            var builder = new ContainerBuilder();
             builder.RegisterAssemblyTypes(typeof(WordCountProcessor.WordCountProcessor).Assembly).AsImplementedInterfaces();
             //WordCountProcessor.WordCountRegistration.RegisterTypes(builder);
-
             container = builder.Build();
 
-            processor = new WordCountProcessor.WordCountProcessor(container.Resolve<WordCountProcessor.IInputModifier>(),
-                                                                    container.Resolve<WordCountProcessor.IWordCounter>(),
-                                                                    container.Resolve<WordCountProcessor.IWordCountFormatter>());
-            */
+            processor = new WordCountProcessor.WordCountProcessor(container.Resolve<IInputModifier>(), 
+                                                                    container.Resolve<IWordCounter>());
         }
 
         //Sync (with async code)
         public void ProcessUserInput(string value)
         {
-            processor.CountWords(value);
+            processor.ProcessUserInput(value);
 
             //Task.Factory.StartNew(() => processor.CountWords(value))
             //    .ContinueWith(t => 
@@ -63,7 +60,7 @@ namespace WordCountServiceLibrary
         public IAsyncResult BeginGetWordCount(string value, AsyncCallback callback, object state)
         {
             var tcs = new TaskCompletionSource<string>(state);
-            var task = Task.Factory.StartNew(() => processor.CountWords(value));
+            var task = Task.Factory.StartNew(() => processor.ProcessUserInput(value));
             task.ContinueWith(t =>
             {
                 if (t.IsFaulted)
